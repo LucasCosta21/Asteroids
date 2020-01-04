@@ -27,40 +27,57 @@
 int main()
 {
     srand(time(NULL));
-    int aux[30];
+    int auxMeteoros[15], auxTiros[10], qtdMun = 9;
 
     //DEFINIÇÕES
     //Criação da nave
     sf::ConvexShape nave;
     nave.setPointCount(4);
-    nave.setPoint(0, sf::Vector2f(-10,-10));
-    nave.setPoint(1, sf::Vector2f(0,20));
-    nave.setPoint(2, sf::Vector2f(10,-10));
-    nave.setPoint(3, sf::Vector2f(0,0));
+    nave.setPoint(0, sf::Vector2f(-10,-20));
+    nave.setPoint(1, sf::Vector2f(0,10));
+    nave.setPoint(2, sf::Vector2f(10,-20));
+    nave.setPoint(3, sf::Vector2f(0,-10));
     nave.setFillColor(sf::Color::Transparent);
     nave.setOutlineThickness(1);
     nave.setOutlineColor(sf::Color::White);
     nave.setPosition(WIDTH/2,HEIGHT/2);
 
     //Criação dos meteoros
-    std::vector<sf::CircleShape> meteoros(30);
-    for(int i=0;i<30;i++)
+    std::vector<sf::CircleShape> meteoros(15);
+    for(int i=0;i<15;i++)
     {
-        aux[i] = 0;
+        auxMeteoros[i] = 0;
         meteoros[i].setPointCount(7);
         meteoros[i].setRadius((rand()%20)+20);
         meteoros[i].setFillColor(sf::Color::Transparent);
         meteoros[i].setOutlineThickness(1);
         meteoros[i].setOutlineColor(sf::Color::White);
         meteoros[i].setPosition(-40,-40);
+        meteoros[i].setOrigin(meteoros[i].getRadius(),meteoros[i].getRadius());
+    }
+
+    //Criação dos tiros
+    std::vector<sf::ConvexShape> tiros(10);
+    for(int i=0;i<10;i++)
+    {
+        auxTiros[i] = 0;
+        tiros[i].setPointCount(4);
+        tiros[i].setPoint(0,sf::Vector2f(-1,-2));
+        tiros[i].setPoint(1,sf::Vector2f(-1,2));
+        tiros[i].setPoint(2,sf::Vector2f(1,2));
+        tiros[i].setPoint(3,sf::Vector2f(1,-2));
+        tiros[i].setFillColor(sf::Color::White);
+        tiros[i].setPosition(300+(10*i),(10*i)+300);
+        tiros[i].setOrigin(meteoros[i].getRadius(),meteoros[i].getRadius());
     }
 
     //Renderização da janela
     sf::RenderWindow Window(sf::VideoMode(WIDTH, HEIGHT), "Asteroids");
+    Window.setFramerateLimit(350);
 
     //Variáveis de lógica do jogo
     float rotateTax = 0, lastInputR = 0, inputW = 0, dificuldade = 0.2;
-    float throttlex = 0, throttley = 0, angle = nave.getRotation();
+    float throttlex = 0, throttley = 0, angle = nave.getRotation(), atirou = 0;
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
@@ -91,13 +108,13 @@ int main()
                 throttley += cos((angle)*3.14159265/180)/10;
             }
 
-            if(throttlex > 1)
+            if(throttlex > 0.5)
             {
-                throttlex = 1;
+                throttlex = 0.5;
             }
-            if(throttley > 1)
+            if(throttley > 0.5)
             {
-                throttley = 1;
+                throttley = 0.5;
             }
 
             //Controle de rotação da nave
@@ -107,6 +124,7 @@ int main()
                 {
                     case(sf::Keyboard::Left): rotateTax = -0.6; lastInputR = -1; break;
                     case(sf::Keyboard::Right): rotateTax = 0.6; lastInputR = 1; break;
+                    case(sf::Keyboard::Space): qtdMun>0?atirou = 1:true; break;
                 }
             }
 
@@ -128,8 +146,9 @@ int main()
 
         //MOVIMENTAÇÃO
         nave.rotate(rotateTax);
-        printf("x: %f y: %f \n",sin((nave.getRotation())*3.14159265/180),sin((nave.getRotation()+90)*3.14159265/180));
-        nave.move( sin((angle)*-3.14159265/180)*modulo(throttlex), sin((angle+90)*3.14159265/180)*modulo(throttley));
+        //printf("x: %f y: %f \n",sin((nave.getRotation())*3.14159265/180),sin((nave.getRotation()+90)*3.14159265/180));
+        nave.move( sin((angle)*-3.14159265/180)*modulo(throttlex),
+                   sin((angle+90)*3.14159265/180)*modulo(throttley));
 
         if(nave.getPosition().x>800){nave.setPosition(0,nave.getPosition().y);}
         if(nave.getPosition().x<0){nave.setPosition(800,nave.getPosition().y);}
@@ -138,7 +157,7 @@ int main()
 
         for(int i=0;i<15;i++)
         {
-            if(aux[i]==0)
+            if(auxMeteoros[i]==0)
             {
                 int x = rand()%2;
                 int y = rand()%2;
@@ -166,16 +185,64 @@ int main()
                         meteoros[i].setRotation((rand()%90)+45);
                     }
                 }
-            aux[i] = 1;
-            }else if(aux[i]==1)
+            auxMeteoros[i] = 1;
+            }else if(auxMeteoros[i]==1)
             {
-                if(meteoros[i].getPosition().x>800 || meteoros[i].getPosition().x<-40 || meteoros[i].getPosition().y>600 || meteoros[i].getPosition().y<-40)
+                if(meteoros[i].getPosition().x>800 || meteoros[i].getPosition().x<-40
+                   || meteoros[i].getPosition().y>600 || meteoros[i].getPosition().y<-40)
                 {
-                    aux[i] = 0;
+                    auxMeteoros[i] = 0;
                 }
             }
 
-            meteoros[i].move( sin((meteoros[i].getRotation())*-3.14159265/180)*dificuldade, sin((meteoros[i].getRotation()+90)*3.14159265/180)*dificuldade);
+            meteoros[i].move( sin((meteoros[i].getRotation())*-3.14159265/180)*dificuldade,
+                              sin((meteoros[i].getRotation()+90)*3.14159265/180)*dificuldade);
+        }
+
+        printf("origem nave : %d %d\n", nave.getOrigin().x,nave.getOrigin().y);
+
+        if(atirou == 1)
+        {
+            atirou = 0;
+            //printf("atirou\n");
+
+            for(int i = 0; i < 10; i++)
+            {
+                if(auxTiros[i] == 0)
+                {
+                    if(nave.getRotation()<270 && nave.getRotation()>90)
+                    {
+                        nave.getRotation()>180?tiros[i].setPosition(nave.getPosition().x,nave.getPosition().y)
+                        :tiros[i].setPosition(nave.getPosition().x,nave.getPosition().y);
+                    }else
+                    {
+                        nave.getRotation()>180?tiros[i].setPosition(nave.getPosition().x,nave.getPosition().y)
+                        :tiros[i].setPosition(nave.getPosition().x,nave.getPosition().y);
+                    }
+
+                    tiros[i].setRotation(nave.getRotation());
+                    auxTiros[i] = 1;
+                    qtdMun--;
+                    break;
+                }
+            }
+        }
+
+        for(int i=0;i<10;i++)
+        {
+            if(auxTiros[i] == 1)
+            {
+                tiros[i].move(sin((tiros[i].getRotation())*-3.14159265/180)*0.7,
+                               sin((tiros[i].getRotation()+90)*3.14159265/180)*0.7);
+            }
+
+            if((tiros[i].getPosition().x>800 || tiros[i].getPosition().x<-40
+               || tiros[i].getPosition().y>600 || tiros[i].getPosition().y<-40)
+               && auxTiros[i] == 1)
+            {
+                qtdMun++;
+                auxTiros[i] = 0;
+            }
         }
 
         ////////////////////////////////////////////////
@@ -190,6 +257,13 @@ int main()
         for(int i=0; i<15 ; i++)
         {
             Window.draw(meteoros[i]);
+        }
+        for(int i=0;i<10;i++)
+        {
+            if(auxTiros[i] == 1)
+            {
+                Window.draw(tiros[i]);
+            }
         }
         Window.display();
     }
