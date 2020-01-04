@@ -9,6 +9,7 @@
 #include <SFML/Audio.hpp>
 #include <cmath>
 #include <cstdlib>
+#include <ctime>
 
 //MACROS E CONSTANTES
 #define WIDTH 800
@@ -25,6 +26,9 @@
 //Main function
 int main()
 {
+    srand(time(NULL));
+    int aux[30];
+
     //DEFINIÇÕES
     //Criação da nave
     sf::ConvexShape nave;
@@ -38,11 +42,24 @@ int main()
     nave.setOutlineColor(sf::Color::White);
     nave.setPosition(WIDTH/2,HEIGHT/2);
 
+    //Criação dos meteoros
+    std::vector<sf::CircleShape> meteoros(30);
+    for(int i=0;i<30;i++)
+    {
+        aux[i] = 0;
+        meteoros[i].setPointCount(7);
+        meteoros[i].setRadius((rand()%20)+20);
+        meteoros[i].setFillColor(sf::Color::Transparent);
+        meteoros[i].setOutlineThickness(1);
+        meteoros[i].setOutlineColor(sf::Color::White);
+        meteoros[i].setPosition(-40,-40);
+    }
+
     //Renderização da janela
     sf::RenderWindow Window(sf::VideoMode(WIDTH, HEIGHT), "Asteroids");
 
     //Variáveis de lógica do jogo
-    float rotateTax = 0, lastInputR = 0, inputW = 0;
+    float rotateTax = 0, lastInputR = 0, inputW = 0, dificuldade = 0.2;
     float throttlex = 0, throttley = 0, angle = nave.getRotation();
 
     ////////////////////////////////////////////////
@@ -111,8 +128,55 @@ int main()
 
         //MOVIMENTAÇÃO
         nave.rotate(rotateTax);
-        printf("x: %f y: %f \n",sin((nave.getRotation())*3.14159265/180)*throttlex,sin((nave.getRotation()+90)*3.14159265/180)*throttley);
+        printf("x: %f y: %f \n",sin((nave.getRotation())*3.14159265/180),sin((nave.getRotation()+90)*3.14159265/180));
         nave.move( sin((angle)*-3.14159265/180)*modulo(throttlex), sin((angle+90)*3.14159265/180)*modulo(throttley));
+
+        if(nave.getPosition().x>800){nave.setPosition(0,nave.getPosition().y);}
+        if(nave.getPosition().x<0){nave.setPosition(800,nave.getPosition().y);}
+        if(nave.getPosition().y>600){nave.setPosition(nave.getPosition().x,0);}
+        if(nave.getPosition().y<0){nave.setPosition(nave.getPosition().x,600);}
+
+        for(int i=0;i<15;i++)
+        {
+            if(aux[i]==0)
+            {
+                int x = rand()%2;
+                int y = rand()%2;
+
+                if(x == 0)
+                {
+                    if(y == 0)
+                    {
+                        meteoros[i].setPosition((rand()%800),-40);
+                        meteoros[i].setRotation((rand()%90)-45);
+                    }else
+                    {
+                        meteoros[i].setPosition((rand()%800),600);
+                        meteoros[i].setRotation((rand()%90)+135);
+                    }
+                }else
+                {
+                    if(y == 0)
+                    {
+                        meteoros[i].setPosition(-40,rand()%600);
+                        meteoros[i].setRotation((rand()%90)+225);
+                    }else
+                    {
+                        meteoros[i].setPosition(800,rand()%600);
+                        meteoros[i].setRotation((rand()%90)+45);
+                    }
+                }
+            aux[i] = 1;
+            }else if(aux[i]==1)
+            {
+                if(meteoros[i].getPosition().x>800 || meteoros[i].getPosition().x<-40 || meteoros[i].getPosition().y>600 || meteoros[i].getPosition().y<-40)
+                {
+                    aux[i] = 0;
+                }
+            }
+
+            meteoros[i].move( sin((meteoros[i].getRotation())*-3.14159265/180)*dificuldade, sin((meteoros[i].getRotation()+90)*3.14159265/180)*dificuldade);
+        }
 
         ////////////////////////////////////////////////
         ////////////////////////////////////////////////
@@ -123,6 +187,10 @@ int main()
         //RENDERIZAÇÃO
         Window.clear();
         Window.draw(nave);
+        for(int i=0; i<15 ; i++)
+        {
+            Window.draw(meteoros[i]);
+        }
         Window.display();
     }
 
