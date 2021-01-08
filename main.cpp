@@ -1,10 +1,10 @@
 ////////////////////////////////////////////////
-    /* Autor: Lucas Assunção Costa
-       Data de criação: 03/01/2020
+    /* Autor: Lucas AssunÃ§Ã£o Costa
+       Data de criaÃ§Ã£o: 03/01/2020
        Asteroids: ver 0.1        */
 ////////////////////////////////////////////////
 
-//DEPENDÊNCIAS
+//DEPENDÃŠNCIAS
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <cmath>
@@ -17,20 +17,11 @@
 #define SPEED 1
 #define modulo(d) ((d)<0?d*-1:d)
 
-////////////////////////////////////////////////
-////////////////////////////////////////////////
-////////////////////////////////////////////////
-////////////////////////////////////////////////
-////////////////////////////////////////////////
-
-//Main function
 int main()
 {
     srand(time(NULL));
     int auxMeteoros[15], auxTiros[10], qtdMun = 9;
 
-    //DEFINIÇÕES
-    //Criação da nave
     sf::ConvexShape nave;
     nave.setPointCount(4);
     nave.setPoint(0, sf::Vector2f(-10,-20));
@@ -42,7 +33,6 @@ int main()
     nave.setOutlineColor(sf::Color::White);
     nave.setPosition(WIDTH/2,HEIGHT/2);
 
-    //Criação dos meteoros
     std::vector<sf::CircleShape> meteoros(15);
     for(int i=0;i<15;i++)
     {
@@ -56,7 +46,6 @@ int main()
         meteoros[i].setOrigin(meteoros[i].getRadius(),meteoros[i].getRadius());
     }
 
-    //Criação dos tiros
     std::vector<sf::ConvexShape> tiros(10);
     for(int i=0;i<10;i++)
     {
@@ -71,36 +60,20 @@ int main()
         tiros[i].setOrigin(meteoros[i].getRadius(),meteoros[i].getRadius());
     }
 
-    //Renderização da janela
     sf::RenderWindow Window(sf::VideoMode(WIDTH, HEIGHT), "Asteroids");
     Window.setFramerateLimit(350);
 
-    //Variáveis de lógica do jogo
     float rotateTax = 0, lastInputR = 0, inputW = 0, dificuldade = 0.2;
     float throttlex = 0, throttley = 0, angle = nave.getRotation(), atirou = 0;
 
-    ////////////////////////////////////////////////
-    ////////////////////////////////////////////////
-    ////////////////////////////////////////////////
-    ////////////////////////////////////////////////
-    ////////////////////////////////////////////////
-
-    //game loop
     while (Window.isOpen())
     {
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-
-        //INPUT
         sf::Event event;
         while (Window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 Window.close();
 
-            //Controle de aceleração da nave
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
             {
                 angle = nave.getRotation();
@@ -117,7 +90,6 @@ int main()
                 throttley = 0.5;
             }
 
-            //Controle de rotação da nave
             if (event.type == sf::Event::KeyPressed)
             {
                 switch(event.key.code)
@@ -138,15 +110,7 @@ int main()
             }
         }
 
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-
-        //MOVIMENTAÇÃO
         nave.rotate(rotateTax);
-        //printf("x: %f y: %f \n",sin((nave.getRotation())*3.14159265/180),sin((nave.getRotation()+90)*3.14159265/180));
         nave.move( sin((angle)*-3.14159265/180)*modulo(throttlex),
                    sin((angle+90)*3.14159265/180)*modulo(throttley));
 
@@ -204,7 +168,6 @@ int main()
         if(atirou == 1)
         {
             atirou = 0;
-            //printf("atirou\n");
 
             for(int i = 0; i < 10; i++)
             {
@@ -245,13 +208,6 @@ int main()
             }
         }
 
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-
-        //RENDERIZAÇÃO
         Window.clear();
         Window.draw(nave);
         for(int i=0; i<15 ; i++)
