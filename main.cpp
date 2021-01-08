@@ -4,14 +4,12 @@
        Asteroids: ver 0.1        */
 ////////////////////////////////////////////////
 
-//DEPENDÊNCIAS
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
 
-//MACROS E CONSTANTES
 #define WIDTH 800
 #define HEIGHT 600
 #define SPEED 1
